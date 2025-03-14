@@ -30,7 +30,8 @@ on:
         type: string
         default: "envfile=_envfile"
     secrets:
-      inherit: true
+      GITHUB_TOKEN:
+        required: true
     
 jobs:
   build-push:
