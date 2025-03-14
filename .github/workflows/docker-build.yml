@@ -1,55 +1,52 @@
 name: "Build & Push Docker Image"
 
-on:
-  workflow_call:
-    inputs:
-      github_token:
-        required: true
-        type: string
-      github_actor:
-        required: true
-        type: string
-      subdirectory:
-        required: false
-        type: string
-        default: ""
-      dockerfile_name:
-        required: false
-        type: string
-        default: "Dockerfile"
-      custom_tag_name:
-        required: false
-        type: string
-        default: "dev"
-      build_args:
-        required: false
-        type: string
-        default: "_ENV=development"
-      build_secrets:
-        required: false
-        type: string
-        default: "envfile=_envfile"
+inputs:
+  github_token:
+    required: true
+    type: string
+  github_actor:
+    required: true
+    type: string
+  subdirectory:
+    required: false
+    type: string
+    default: ""
+  dockerfile_name:
+    required: false
+    type: string
+    default: "Dockerfile"
+  custom_tag_name:
+    required: false
+    type: string
+    default: "dev"
+  build_args:
+    required: false
+    type: string
+    default: "_ENV=development"
+  build_secrets:
+    required: false
+    type: string
+    default: "envfile=_envfile"
 
-jobs:
-  build-push:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ inputs.github_actor }}
-          password: ${{ inputs.github_token }}
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ inputs.github_actor }}
+        password: ${{ inputs.github_token }}
 
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./${{ inputs.subdirectory }}
-          build-args: ${{ inputs.build_args }}
-          file: ${{ inputs.dockerfile_name }}
-          tags: ghcr.io/${{ github.repository_owner }}/${{ inputs.subdirectory != '' && inputs.subdirectory || github.event.repository.name }}:${{ inputs.custom_tag_name }}
-          push: true
-          secrets: ${{ inputs.build_secrets }}
+    - name: Build and Push Docker Image
+      uses: docker/build-push-action@v6
+      with:
+        context: ./${{ inputs.subdirectory }}
+        build-args: ${{ inputs.build_args }}
+        file: ${{ inputs.dockerfile_name }}
+        tags: ghcr.io/${{ github.repository_owner }}/${{ inputs.subdirectory != '' && inputs.subdirectory || github.event.repository.name }}:${{ inputs.custom_tag_name }}
+        push: true
+        secrets: ${{ inputs.build_secrets }}

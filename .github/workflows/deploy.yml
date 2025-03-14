@@ -1,59 +1,56 @@
 name: "Deploy to Server"
 
-on:
-  workflow_call:
-    inputs:
-      ssh_enable:
-        required: false
-        type: string
-        default: "true"
-      ssh_host:
-        required: true
-        type: string
-      ssh_user:
-        required: true
-        type: string
-      ssh_private_key:
-        required: true
-        type: string
-      ssh_port:
-        required: false
-        type: string
-        default: "22"
-      deploy_folder_path:
-        required: true
-        type: string
-      deploy_command:
-        required: true
-        type: string
-      image_tag:
-        required: true
-        type: string
+inputs:
+  ssh_enable:
+    required: false
+    type: string
+    default: "true"
+  ssh_host:
+    required: true
+    type: string
+  ssh_user:
+    required: true
+    type: string
+  ssh_private_key:
+    required: true
+    type: string
+  ssh_port:
+    required: false
+    type: string
+    default: "22"
+  deploy_folder_path:
+    required: true
+    type: string
+  deploy_command:
+    required: true
+    type: string
+  image_tag:
+    required: true
+    type: string
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Decode Base64 SSH Private Key
-        if: ${{ inputs.ssh_enable == 'true' }}
-        shell: bash
-        run: |
-          decoded_key=$(echo "${{ inputs.ssh_private_key }}" | base64 -d)
-          echo "DECODED_SSH_KEY<<EOF" >> $GITHUB_ENV
-          echo "$decoded_key" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+runs:
+  using: "composite"
+  steps:
+    - name: Decode Base64 SSH Private Key
+      if: ${{ inputs.ssh_enable == 'true' }}
+      shell: bash
+      run: |
+        decoded_key=$(echo "${{ inputs.ssh_private_key }}" | base64 -d)
+        echo "DECODED_SSH_KEY<<EOF" >> $GITHUB_ENV
+        echo "$decoded_key" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
 
-      - name: Execute Deployment Command
-        if: ${{ inputs.ssh_enable == 'true' }}
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ inputs.ssh_host }}
-          username: ${{ inputs.ssh_user }}
-          key: ${{ env.DECODED_SSH_KEY }}
-          port: ${{ inputs.ssh_port }}
-          script: |
-            repo_name=$(echo "${{ github.event.repository.name }}" | tr -d '_-')
-            cd ${{ inputs.deploy_folder_path }}
-            sh ${{ inputs.deploy_command }} $repo_name
-            echo "Deploy Command: ${{ inputs.deploy_command }}"
-            echo "Deploy Folder: ${{ inputs.deploy_folder_path }}"
+    - name: Execute Deployment Command
+      if: ${{ inputs.ssh_enable == 'true' }}
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ inputs.ssh_host }}
+        username: ${{ inputs.ssh_user }}
+        key: ${{ env.DECODED_SSH_KEY }}
+        port: ${{ inputs.ssh_port }}
+        script: |
+          repo_name=$(echo "${{ github.event.repository.name }}" | tr -d '_-')
+          cd ${{ inputs.deploy_folder_path }}
+          sh ${{ inputs.deploy_command }} $repo_name
+          echo "Deploy Command: ${{ inputs.deploy_command }}"
+          echo "Deploy Folder: ${{ inputs.deploy_folder_path }}"
