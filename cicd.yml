@@ -1,0 +1,35 @@
+name: "CI/CD Workflow"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    uses: devopsprabin/workflows/.github/workflows/docker-build.yml@main
+    with:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+      github_actor: ${{ github.actor }}
+
+  deploy:
+    needs: build
+    uses: devopsprabin/workflows/.github/workflows/deploy.yml@main
+    with:
+      ssh_enable: "true"
+      ssh_host: ${{ secrets.SSH_HOST_DEV }}
+      ssh_user: ${{ secrets.SSH_USER_DEV }}
+      ssh_port: ${{ secrets.SSH_PORT_DEV }}
+      ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY_DEV }}
+      deploy_folder_path: ${{ vars.DEPLOY_FOLDER_PATH_DEV }}
+      deploy_command: ${{ vars.DEPLOY_COMMAND_DEV }}
+
+  notify:
+    needs: deploy
+    uses: devopsprabin/workflows/.github/workflows/discord-notify.yml@main
+    with:
+      discord_webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+      discord_webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+      discord_enable: "true"
+
+
