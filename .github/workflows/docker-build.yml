@@ -1,37 +1,32 @@
 name: "Build & Push Docker Image"
 
-on:
-  workflow_call:
-    inputs:
-      github_token:
-        required: true
-        type: string
-      github_actor:
-        required: true
-        type: string
-      subdirectory:
-        required: false
-        type: string
-        default: ""
-      dockerfile_name:
-        required: false
-        type: string
-        default: "Dockerfile"
-      custom_tag_name:
-        required: false
-        type: string
-        default: "dev"
-      build_args:
-        required: false
-        type: string
-        default: "_ENV=development"
-      build_secrets:
-        required: false
-        type: string
-        default: "envfile=_envfile"
-    secrets:
-      GITHUB_TOKEN:
-        required: true
+inputs:
+  github_token:
+    required: true
+    type: string
+  github_actor:
+    required: true
+    type: string
+  subdirectory:
+    required: false
+    type: string
+    default: ""
+  dockerfile_name:
+    required: false
+    type: string
+    default: "Dockerfile"
+  custom_tag_name:
+    required: false
+    type: string
+    default: "dev"
+  build_args:
+    required: false
+    type: string
+    default: "_ENV=development"
+  build_secrets:
+    required: false
+    type: string
+    default: "envfile=_envfile"
     
 jobs:
   build-push:
