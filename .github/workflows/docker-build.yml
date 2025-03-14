@@ -1,53 +1,53 @@
-name: "Build & Push Docker Image"
+name: Docker Build and Deploy
 
-inputs:
-  github_token:
-    required: true
-    type: string
-  github_actor:
-    required: true
-    type: string
-  subdirectory:
-    required: false
-    type: string
-    default: ""
-  dockerfile_name:
-    required: false
-    type: string
-    default: "Dockerfile"
-  custom_tag_name:
-    required: false
-    type: string
-    default: "dev"
-  build_args:
-    required: false
-    type: string
-    default: "_ENV=development"
-  build_secrets:
-    required: false
-    type: string
-    default: "envfile=_envfile"
-    
+on:
+  workflow_call:  # 👈 This makes it reusable by other workflows
+    inputs:
+      ssh_enable:
+        required: false
+        type: string
+        default: "true"
+      ssh_host:
+        required: true
+        type: string
+      ssh_user:
+        required: true
+        type: string
+      ssh_private_key:
+        required: true
+        type: string
+      ssh_port:
+        required: false
+        type: string
+        default: "22"
+      deploy_folder_path:
+        required: true
+        type: string
+      deploy_command:
+        required: true
+        type: string
+
 jobs:
-  build-push:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - name: Decode SSH Key
+        if: ${{ inputs.ssh_enable == 'true' }}
+        shell: bash
+        run: |
+          decoded_key=$(echo "${{ inputs.ssh_private_key }}" | base64 -d)
+          echo "DECODED_SSH_KEY<<EOF" >> $GITHUB_ENV
+          echo "$decoded_key" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+      - name: Deploy Application
+        if: ${{ inputs.ssh_enable == 'true' }}
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          registry: ghcr.io
-          username: ${{ inputs.github_actor }}
-          password: ${{ inputs.github_token }}
-
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./${{ inputs.subdirectory }}
-          build-args: ${{ inputs.build_args }}
-          file: ${{ inputs.dockerfile_name }}
-          tags: ghcr.io/${{ github.repository_owner }}/${{ inputs.subdirectory != '' && inputs.subdirectory || github.event.repository.name }}:${{ inputs.custom_tag_name }}
-          push: true
-          secrets: ${{ inputs.build_secrets }}
+          host: ${{ inputs.ssh_host }}
+          username: ${{ inputs.ssh_user }}
+          key: ${{ env.DECODED_SSH_KEY }}
+          port: ${{ inputs.ssh_port }}
+          script: |
+            cd ${{ inputs.deploy_folder_path }}
+            sh ${{ inputs.deploy_command }}
