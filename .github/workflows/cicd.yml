@@ -1,33 +1,68 @@
-name: "CI/CD Workflow"
+name: Docker Build and Deploy
 
 on:
   workflow_call:
+    inputs:
+      github_actor:
+        required: true
+        type: string
+      github_token:
+        required: true
+        type: string
+      ssh_enable:
+        required: true
+        type: string
+      ssh_host:
+        required: true
+        type: string
+      ssh_user:
+        required: true
+        type: string
+      ssh_port:
+        required: true
+        type: string
+      ssh_private_key:
+        required: true
+        type: string
+      deploy_folder_path:
+        required: true
+        type: string
+      deploy_command:
+        required: true
+        type: string
+      discord_webhook_id:
+        required: true
+        type: string
+      discord_webhook_token:
+        required: true
+        type: string
+      discord_enable:
+        required: true
+        type: string
 
 jobs:
   build:
     uses: devopsprabin/workflows/.github/workflows/docker-build.yml@main
     with:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
-      github_actor: ${{ github.actor }}
+      github_token: ${{ inputs.github_token }}
+      github_actor: ${{ inputs.github_actor }}
 
   deploy:
     needs: build
     uses: devopsprabin/workflows/.github/workflows/deploy.yml@main
     with:
-      ssh_enable: "true"
-      ssh_host: ${{ secrets.SSH_HOST_DEV }}
-      ssh_user: ${{ secrets.SSH_USER_DEV }}
-      ssh_port: ${{ secrets.SSH_PORT_DEV }}
-      ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY_DEV }}
-      deploy_folder_path: ${{ vars.DEPLOY_FOLDER_PATH_DEV }}
-      deploy_command: ${{ vars.DEPLOY_COMMAND_DEV }}
+      ssh_enable: ${{ inputs.ssh_enable }}
+      ssh_host: ${{ inputs.ssh_host }}
+      ssh_user: ${{ inputs.ssh_user }}
+      ssh_port: ${{ inputs.ssh_port }}
+      ssh_private_key: ${{ inputs.ssh_private_key }}
+      deploy_folder_path: ${{ inputs.deploy_folder_path }}
+      deploy_command: ${{ inputs.deploy_command }}
 
   notify:
     needs: deploy
     uses: devopsprabin/workflows/.github/workflows/discord-notify.yml@main
     with:
-      discord_webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-      discord_webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-      discord_enable: "true"
-
-
+      discord_webhook_id: ${{ inputs.discord_webhook_id }}
+      discord_webhook_token: ${{ inputs.discord_webhook_token }}
+      discord_enable: ${{ inputs.discord_enable }}
