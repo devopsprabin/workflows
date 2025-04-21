@@ -40,6 +40,9 @@ on:
       discord_enable:
         required: true
         type: string
+      ssh_enable:
+        required: true
+        type: string
 
     secrets:
       git_token:
@@ -51,8 +54,7 @@ on:
       discord_webhook_token:
         required: true
       # Deploy args
-      ssh_enable:
-        required: true
+
       ssh_host:
         required: true
       ssh_user:
