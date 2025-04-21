@@ -11,11 +11,11 @@ on:
         required: false
         type: string
         default: Dockerfile
-      # build_args:
-      #   required: false
-      #   type: string
-      #   default: |
-      #     _ENV=development
+      build_args:
+        required: false
+        type: string
+        default: |
+          _ENV=development
       custom_tag_name:
         required: false
         default: dev
@@ -23,9 +23,6 @@ on:
       image_name:
         required: false
         type: string
-      # git_token:
-      #   required: true
-      #   type: string
     secrets:
       git_token:
         required: true
@@ -55,6 +52,6 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ inputs.subdirectory != '' && inputs.subdirectory || github.event.repository.name }}:${{ inputs.custom_tag_name }}
             ${{ inputs.image_name }}
-          # build-args: |
-          #   ${{ inputs.build_args }}
-          #   GIT_TOKEN=${{ secrets.git_token }}
+          build-args: |
+            ${{ inputs.build_args }}
+            GIT_TOKEN=${{ secrets.git_token }}
