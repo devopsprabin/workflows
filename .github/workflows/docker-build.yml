@@ -44,7 +44,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ inputs.git_token }}
+          password: ${{ secrets.git_token }}
 
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v6
@@ -57,4 +57,4 @@ jobs:
             ${{ inputs.image_name }}
           # build-args: |
           #   ${{ inputs.build_args }}
-          #   GIT_TOKEN=${{ inputs.git_token }}
+          #   GIT_TOKEN=${{ secrets.git_token }}
