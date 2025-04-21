@@ -1,0 +1,48 @@
+name: Docker Build and Deploy
+
+on:
+  workflow_call:
+    inputs:
+      ssh_enable:
+        required: false
+        type: string
+        default: "true"
+      deploy_folder_path:
+        required: true
+        type: string
+      deploy_command:
+        required: true
+        type: string
+    secrets:  # 👈 define secrets expected from caller
+      SSH_HOST_DEV:
+        required: true
+      SSH_USER_DEV:
+        required: true
+      SSH_PORT_DEV:
+        required: true
+      SSH_PRIVATE_KEY_DEV:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Decode SSH Key
+        if: ${{ inputs.ssh_enable == 'true' }}
+        shell: bash
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY_DEV }}" | base64 -d > private_key.pem
+          echo "PRIVATE_KEY_PATH=private_key.pem" >> $GITHUB_ENV
+
+      - name: Deploy Application
+        if: ${{ inputs.ssh_enable == 'true' }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST_DEV }}
+          username: ${{ secrets.SSH_USER_DEV }}
+          key_path: ${{ env.PRIVATE_KEY_PATH }}
+          port: ${{ secrets.SSH_PORT_DEV }}
+          script: |
+            cd ${{ inputs.deploy_folder_path }}
+            # sh ${{ inputs.deploy_command }}
+            uptime
