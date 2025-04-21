@@ -44,4 +44,5 @@ jobs:
           port: ${{ secrets.SSH_PORT_DEV }}
           script: |
             cd ${{ inputs.deploy_folder_path }}
-            sh ${{ inputs.deploy_command }}
+            # sh ${{ inputs.deploy_command }}
+            uptime
