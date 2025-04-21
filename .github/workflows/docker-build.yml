@@ -40,7 +40,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST_DEV }}
           username: ${{ secrets.SSH_USER_DEV }}
-          key: ${{ env.PRIVATE_KEY_PATH }}
+          key_path: ${{ env.PRIVATE_KEY_PATH }}
           port: ${{ secrets.SSH_PORT_DEV }}
           script: |
             cd ${{ inputs.deploy_folder_path }}
