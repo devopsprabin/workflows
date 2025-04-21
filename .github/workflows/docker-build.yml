@@ -7,48 +7,41 @@ on:
         required: false
         type: string
         default: "true"
-      ssh_host:
-        required: true
-        type: string
-      ssh_user:
-        required: true
-        type: string
-      ssh_private_key:
-        required: true
-        type: string
-      ssh_port:
-        required: false
-        type: string
-        default: "22"
       deploy_folder_path:
         required: true
         type: string
       deploy_command:
         required: true
         type: string
+    secrets:  # 👈 define secrets expected from caller
+      SSH_HOST_DEV:
+        required: true
+      SSH_USER_DEV:
+        required: true
+      SSH_PORT_DEV:
+        required: true
+      SSH_PRIVATE_KEY_DEV:
+        required: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
       - name: Decode SSH Key
         if: ${{ inputs.ssh_enable == 'true' }}
-        id: decode_key
+        shell: bash
         run: |
-          echo "${{ inputs.ssh_private_key }}" | base64 -d > private_key.pem
-          chmod 600 private_key.pem
+          echo "${{ secrets.SSH_PRIVATE_KEY_DEV }}" | base64 -d > private_key.pem
+          echo "PRIVATE_KEY_PATH=private_key.pem" >> $GITHUB_ENV
 
-      - name: Deploy via SSH
+      - name: Deploy Application
         if: ${{ inputs.ssh_enable == 'true' }}
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ inputs.ssh_host }}
-          username: ${{ inputs.ssh_user }}
-          key: ${{ steps.decode_key.outputs.key || 'private_key.pem' }}
-          port: ${{ inputs.ssh_port }}
+          host: ${{ secrets.SSH_HOST_DEV }}
+          username: ${{ secrets.SSH_USER_DEV }}
+          key: ${{ env.PRIVATE_KEY_PATH }}
+          port: ${{ secrets.SSH_PORT_DEV }}
           script: |
             cd ${{ inputs.deploy_folder_path }}
             sh ${{ inputs.deploy_command }}
