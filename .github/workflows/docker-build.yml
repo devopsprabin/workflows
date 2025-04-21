@@ -22,7 +22,6 @@ on:
       image_name:
         required: false
         type: string
-        
     secrets:
       git_token:
         required: true
