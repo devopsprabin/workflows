@@ -1,48 +1,56 @@
-name: Docker Build and Deploy
+name: Docker Build
 
 on:
   workflow_call:
     inputs:
-      ssh_enable:
+      subdirectory:
         required: false
         type: string
-        default: "true"
-      deploy_folder_path:
+        default: ""
+      dockerfile_name:
+        required: false
+        type: string
+        default: Dockerfile
+      build_args:
+        required: false
+        type: string
+        default: |
+          _ENV=development
+      custom_tag_name:
         required: true
         type: string
-      deploy_command:
-        required: true
+      image_name:
+        required: false
         type: string
-    secrets:  # 👈 define secrets expected from caller
-      SSH_HOST_DEV:
-        required: true
-      SSH_USER_DEV:
-        required: true
-      SSH_PORT_DEV:
-        required: true
-      SSH_PRIVATE_KEY_DEV:
+        
+    secrets:
+      github_token:
         required: true
 
 jobs:
-  deploy:
+  docker-build:
     runs-on: ubuntu-latest
-    steps:
-      - name: Decode SSH Key
-        if: ${{ inputs.ssh_enable == 'true' }}
-        shell: bash
-        run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY_DEV }}" | base64 -d > private_key.pem
-          echo "PRIVATE_KEY_PATH=private_key.pem" >> $GITHUB_ENV
 
-      - name: Deploy Application
-        if: ${{ inputs.ssh_enable == 'true' }}
-        uses: appleboy/ssh-action@v1.0.3
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          host: ${{ secrets.SSH_HOST_DEV }}
-          username: ${{ secrets.SSH_USER_DEV }}
-          key_path: ${{ env.PRIVATE_KEY_PATH }}
-          port: ${{ secrets.SSH_PORT_DEV }}
-          script: |
-            cd ${{ inputs.deploy_folder_path }}
-            # sh ${{ inputs.deploy_command }}
-            uptime
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.github_token }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./${{ inputs.subdirectory }}
+          file: ${{ inputs.dockerfile_name }}
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ inputs.subdirectory != '' && inputs.subdirectory || github.event.repository.name }}:${{ inputs.custom_tag_name }}
+            ${{ inputs.image_name }}
+          build-args: |
+            ${{ inputs.build_args }}
+            GIT_TOKEN=${{ secrets.github_token }}
