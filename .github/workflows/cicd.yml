@@ -114,11 +114,12 @@ jobs:
             sh ${{ inputs.deploy_command }}
 
   notify:
-    needs: [docker-build, deploy]  # It waits for both jobs
+    needs: [docker-build, deploy]  # Waits for both jobs
     runs-on: ubuntu-latest
+    if: always()  # ✅ This ensures it runs even if deploy was skipped
     steps:
       - name: Send Success Notification to Discord
-        if: ${{ success() && inputs.discord_enable == 'true' }}
+        if: ${{ success() }}
         uses: appleboy/discord-action@master
         with:
           webhook_id: ${{ secrets.discord_webhook_id }}
@@ -131,7 +132,7 @@ jobs:
             🔹 **Branch:** `${{ github.ref_name }}`
 
       - name: Send Failure Notification to Discord
-        if: ${{ failure() && inputs.discord_enable == 'true' }}
+        if: ${{ failure() }}
         uses: appleboy/discord-action@master
         with:
           webhook_id: ${{ secrets.discord_webhook_id }}
