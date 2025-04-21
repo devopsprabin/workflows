@@ -114,7 +114,6 @@ jobs:
             sh ${{ inputs.deploy_command }}
 
   notify:
-    needs: deploy
     runs-on: ubuntu-latest
     steps:
       - name: Send Success Notification to Discord
