@@ -24,7 +24,7 @@ on:
         type: string
         
     secrets:
-      github_token:
+      git_token:
         required: true
 
 jobs:
