@@ -23,9 +23,12 @@ on:
       image_name:
         required: false
         type: string
+      # git_token:
+      #   required: true
+      #   type: string
+    secrets:
       git_token:
         required: true
-        type: string
 
 
 jobs:
