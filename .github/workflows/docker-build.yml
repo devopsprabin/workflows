@@ -17,7 +17,8 @@ on:
       #   default: |
       #     _ENV=development
       custom_tag_name:
-        required: true
+        required: false
+        default: dev
         type: string
       image_name:
         required: false
