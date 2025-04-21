@@ -1,7 +1,7 @@
 name: Docker Build and Deploy
 
 on:
-  workflow_call:  # 👈 This makes it reusable by other workflows
+  workflow_call:
     inputs:
       ssh_enable:
         required: false
@@ -33,22 +33,21 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
       - name: Decode SSH Key
         if: ${{ inputs.ssh_enable == 'true' }}
-        shell: bash
+        id: decode_key
         run: |
-          decoded_key=$(echo "${{ inputs.ssh_private_key }}" | base64 -d)
-          echo "DECODED_SSH_KEY<<EOF" >> $GITHUB_ENV
-          echo "$decoded_key" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          echo "${{ inputs.ssh_private_key }}" | base64 -d > private_key.pem
+          chmod 600 private_key.pem
 
-      - name: Deploy Application
+      - name: Deploy via SSH
         if: ${{ inputs.ssh_enable == 'true' }}
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ inputs.ssh_host }}
           username: ${{ inputs.ssh_user }}
-          key: ${{ env.DECODED_SSH_KEY }}
+          key: ${{ steps.decode_key.outputs.key || 'private_key.pem' }}
           port: ${{ inputs.ssh_port }}
           script: |
             cd ${{ inputs.deploy_folder_path }}
