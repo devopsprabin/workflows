@@ -1,51 +1,51 @@
-name: Discord Notification
+# name: Discord Notification
 
-on:
-  workflow_call:
-    inputs:
-      discord_enable:
-        required: false
-        type: string
-        default: "true"
-      custom_tag_name:
-        required: false
-        type: string
-        default: "dev"
-    secrets:
-      discord_webhook_id:
-        required: true
-      discord_webhook_token:
-        required: true
+# on:
+#   workflow_call:
+#     inputs:
+#       discord_enable:
+#         required: false
+#         type: string
+#         default: "true"
+#       custom_tag_name:
+#         required: false
+#         type: string
+#         default: "dev"
+#     secrets:
+#       discord_webhook_id:
+#         required: true
+#       discord_webhook_token:
+#         required: true
 
-jobs:
-  notify:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Send Success Notification to Discord
-        if: ${{ success() && inputs.discord_enable == 'true' }}
-        uses: appleboy/discord-action@master
-        with:
-          webhook_id: ${{ secrets.discord_webhook_id }}
-          webhook_token: ${{ secrets.discord_webhook_token }}
-          username: ${{ github.event.sender.login }}
-          avatar_url: ${{ github.event.sender.avatar_url }}
-          args: |
-            ✅ **Successfully Deployed:** ${{ github.event.repository.name }}
-            🔹 **Image Tag:** `${{ inputs.custom_tag_name }}`
-            🔹 **Commit:** `${{ github.event.head_commit.message }}`
-            🔹 **Branch:** `${{ github.ref_name }}`
+# jobs:
+#   notify:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Send Success Notification to Discord
+#         if: ${{ success() && inputs.discord_enable == 'true' }}
+#         uses: appleboy/discord-action@master
+#         with:
+#           webhook_id: ${{ secrets.discord_webhook_id }}
+#           webhook_token: ${{ secrets.discord_webhook_token }}
+#           username: ${{ github.event.sender.login }}
+#           avatar_url: ${{ github.event.sender.avatar_url }}
+#           args: |
+#             ✅ **Successfully Deployed:** ${{ github.event.repository.name }}
+#             🔹 **Image Tag:** `${{ inputs.custom_tag_name }}`
+#             🔹 **Commit:** `${{ github.event.head_commit.message }}`
+#             🔹 **Branch:** `${{ github.ref_name }}`
 
-      - name: Send Failure Notification to Discord
-        if: ${{ failure() && inputs.discord_enable == 'true' }}
-        uses: appleboy/discord-action@master
-        with:
-          webhook_id: ${{ secrets.discord_webhook_id }}
-          webhook_token: ${{ secrets.discord_webhook_token }}
-          username: ${{ github.event.sender.login }}
-          avatar_url: ${{ github.event.sender.avatar_url }}
-          args: |
-            🔴 **Failed Deployment:** ${{ github.event.repository.name }}
-            ❌ **Image Tag:** `${{ inputs.custom_tag_name }}`
-            ❌ **Deployment URL:** [View Workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            ❌ **Commit:** `${{ github.event.head_commit.message }}`
-            ❌ **Branch:** `${{ github.ref_name }}`
+#       - name: Send Failure Notification to Discord
+#         if: ${{ failure() && inputs.discord_enable == 'true' }}
+#         uses: appleboy/discord-action@master
+#         with:
+#           webhook_id: ${{ secrets.discord_webhook_id }}
+#           webhook_token: ${{ secrets.discord_webhook_token }}
+#           username: ${{ github.event.sender.login }}
+#           avatar_url: ${{ github.event.sender.avatar_url }}
+#           args: |
+#             🔴 **Failed Deployment:** ${{ github.event.repository.name }}
+#             ❌ **Image Tag:** `${{ inputs.custom_tag_name }}`
+#             ❌ **Deployment URL:** [View Workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+#             ❌ **Commit:** `${{ github.event.head_commit.message }}`
+#             ❌ **Branch:** `${{ github.ref_name }}`
