@@ -22,9 +22,10 @@ on:
       image_name:
         required: false
         type: string
-    secrets:
       git_token:
         required: true
+        type: string
+
 
 jobs:
   docker-build:
@@ -39,7 +40,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.git_token }}
+          password: ${{ inputs.git_token }}
 
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v6
@@ -52,4 +53,4 @@ jobs:
             ${{ inputs.image_name }}
           build-args: |
             ${{ inputs.build_args }}
-            GIT_TOKEN=${{ secrets.git_token }}
+            GIT_TOKEN=${{ inputs.git_token }}
