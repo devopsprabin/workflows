@@ -114,6 +114,7 @@ jobs:
             sh ${{ inputs.deploy_command }}
 
   notify:
+    needs: [docker-build, deploy]  # It waits for both jobs
     runs-on: ubuntu-latest
     steps:
       - name: Send Success Notification to Discord
