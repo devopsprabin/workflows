@@ -1,14 +1,107 @@
-name: Docker Build and Deploy
+# name: Docker Build and Deploy
+
+# on:
+#   workflow_call:
+#     inputs:
+#       github_actor:
+#         required: true
+#         type: string
+#       github_token:
+#         required: true
+#         type: string
+#       ssh_enable:
+#         required: true
+#         type: string
+#       ssh_host:
+#         required: true
+#         type: string
+#       ssh_user:
+#         required: true
+#         type: string
+#       ssh_port:
+#         required: true
+#         type: string
+#       ssh_private_key:
+#         required: true
+#         type: string
+#       deploy_folder_path:
+#         required: true
+#         type: string
+#       deploy_command:
+#         required: true
+#         type: string
+#       discord_webhook_id:
+#         required: true
+#         type: string
+#       discord_webhook_token:
+#         required: true
+#         type: string
+#       discord_enable:
+#         required: true
+#         type: string
+
+# jobs:
+#   build:
+#     uses: devopsprabin/workflows/.github/workflows/docker-build.yml@main
+#     with:
+#       github_token: ${{ inputs.github_token }}
+#       github_actor: ${{ inputs.github_actor }}
+
+#   deploy:
+#     needs: build
+#     uses: devopsprabin/workflows/.github/workflows/deploy.yml@main
+#     with:
+#       ssh_enable: ${{ inputs.ssh_enable }}
+#       ssh_host: ${{ inputs.ssh_host }}
+#       ssh_user: ${{ inputs.ssh_user }}
+#       ssh_port: ${{ inputs.ssh_port }}
+#       ssh_private_key: ${{ inputs.ssh_private_key }}
+#       deploy_folder_path: ${{ inputs.deploy_folder_path }}
+#       deploy_command: ${{ inputs.deploy_command }}
+
+#   notify:
+#     needs: deploy
+#     uses: devopsprabin/workflows/.github/workflows/discord-notify.yml@main
+#     with:
+#       discord_webhook_id: ${{ inputs.discord_webhook_id }}
+#       discord_webhook_token: ${{ inputs.discord_webhook_token }}
+#       discord_enable: ${{ inputs.discord_enable }}
+
+
+name: CI/CD Workflow
 
 on:
   workflow_call:
     inputs:
-      github_actor:
-        required: true
-        type: string
       github_token:
         required: true
         type: string
+      github_actor:
+        required: true
+        type: string
+
+      # Build args
+      custom_tag_name:
+        required: true
+        type: string
+      image_name:
+        required: false
+        type: string
+      subdirectory:
+        required: false
+        type: string
+        default: ""
+      dockerfile_name:
+        required: false
+        type: string
+        default: Dockerfile
+      build_args:
+        required: false
+        type: string
+        default: |
+          _ENV=development
+
+      # Deploy args
       ssh_enable:
         required: true
         type: string
@@ -30,6 +123,8 @@ on:
       deploy_command:
         required: true
         type: string
+
+      # Notify args
       discord_webhook_id:
         required: true
         type: string
@@ -45,7 +140,11 @@ jobs:
     uses: devopsprabin/workflows/.github/workflows/docker-build.yml@main
     with:
       github_token: ${{ inputs.github_token }}
-      github_actor: ${{ inputs.github_actor }}
+      custom_tag_name: ${{ inputs.custom_tag_name }}
+      image_name: ${{ inputs.image_name }}
+      subdirectory: ${{ inputs.subdirectory }}
+      dockerfile_name: ${{ inputs.dockerfile_name }}
+      build_args: ${{ inputs.build_args }}
 
   deploy:
     needs: build
