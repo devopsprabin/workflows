@@ -40,7 +40,7 @@ on:
 
       # Notify args
       discord_enable:
-        required: true
+        required: false
         type: string
         default: true
       ssh_enable:
