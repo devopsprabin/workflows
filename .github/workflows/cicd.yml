@@ -101,12 +101,10 @@ jobs:
       - name: Decode SSH Key
         shell: bash
         run: |
-          echo "${{ secrets.ssh_private_key }}" | base64 -d > $RUNNER_TEMP/private_key.pem
-          chmod 600 $RUNNER_TEMP/private_key.pem
-          echo "PRIVATE_KEY_PATH=$RUNNER_TEMP/private_key.pem" >> $GITHUB_ENV
-          
-          echo "${{ secrets.ssh_private_key }}" | base64 -d > "$RUNNER_TEMP/private_key.pem"
-          chmod 600 "$RUNNER_TEMP/private_key.pem"
+          mkdir -p "$GITHUB_WORKSPACE/.ssh"
+          echo "${{ secrets.ssh_private_key }}" | base64 -d > "$GITHUB_WORKSPACE/.ssh/private_key.pem"
+          chmod 600 "$GITHUB_WORKSPACE/.ssh/private_key.pem"
+          echo "PRIVATE_KEY_PATH=$GITHUB_WORKSPACE/.ssh/private_key.pem" >> $GITHUB_ENV
           echo "PRIVATE_KEY_PATH=$RUNNER_TEMP/private_key.pem" >> $GITHUB_ENV
         
       - name: Deploy Application
