@@ -67,34 +67,34 @@ on:
         required: true
 
 jobs:
-  # docker-build:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout repo
-  #       uses: actions/checkout@v4
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-  #     - name: Login to GitHub Container Registry
-  #       uses: docker/login-action@v3
-  #       with:
-  #         registry: ghcr.io
-  #         username: ${{ inputs.github_actor }}
-  #         password: ${{ secrets.git_token }}
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ inputs.github_actor }}
+          password: ${{ secrets.git_token }}
 
-  #     - name: Build and Push Docker Image
-  #       uses: docker/build-push-action@v6
-  #       with:
-  #         context: ./${{ inputs.subdirectory }}
-  #         file: ${{ inputs.dockerfile_name }}
-  #         push: true
-  #         tags: |
-  #           ghcr.io/${{ github.repository_owner }}/${{ inputs.subdirectory != '' && inputs.subdirectory || github.event.repository.name }}:${{ inputs.custom_tag_name }}
-  #           ${{ inputs.image_name }}
-  #         build-args: |
-  #           ${{ inputs.build_args }}
-  #           GIT_TOKEN=${{ secrets.git_token }}
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./${{ inputs.subdirectory }}
+          file: ${{ inputs.dockerfile_name }}
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ inputs.subdirectory != '' && inputs.subdirectory || github.event.repository.name }}:${{ inputs.custom_tag_name }}
+            ${{ inputs.image_name }}
+          build-args: |
+            ${{ inputs.build_args }}
+            GIT_TOKEN=${{ secrets.git_token }}
 
   deploy:
-    # needs: docker-build
+    needs: docker-build
     runs-on: ubuntu-latest
     if: ${{ inputs.ssh_enable == 'true' }}
     steps:
@@ -111,37 +111,38 @@ jobs:
           key_path: ${{ env.PRIVATE_KEY_PATH }}
           port: ${{ secrets.ssh_port }}
           script: |
+            ls -lah
             cd ${{ inputs.deploy_folder_path }}
             sh ${{ inputs.deploy_command }}
 
-  # notify:
-  #   needs: [docker-build, deploy]
-  #   runs-on: ubuntu-latest
-  #   if: always()  # 💡 Always run notify, regardless of previous jobs' result
-  #   steps:
-  #     - name: Send Success Notification to Discord
-  #       if: ${{ needs.docker-build.result == 'success' && needs.deploy.result == 'success' }}
-  #       uses: appleboy/discord-action@master
-  #       with:
-  #         webhook_id: ${{ secrets.discord_webhook_id }}
-  #         webhook_token: ${{ secrets.discord_webhook_token }}
-  #         username: GitHub Actions
-  #         avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
-  #         args: |
-  #           ✅ **Successfully Deployed:** ${{ github.event.repository.name }}
-  #           🔹 **Image Tag:** `${{ inputs.custom_tag_name }}`
-  #           🔹 **Branch:** `${{ github.ref_name }}`
+  notify:
+    needs: [docker-build, deploy]
+    runs-on: ubuntu-latest
+    if: always()  # 💡 Always run notify, regardless of previous jobs' result
+    steps:
+      - name: Send Success Notification to Discord
+        if: ${{ needs.docker-build.result == 'success' && needs.deploy.result == 'success' }}
+        uses: appleboy/discord-action@master
+        with:
+          webhook_id: ${{ secrets.discord_webhook_id }}
+          webhook_token: ${{ secrets.discord_webhook_token }}
+          username: GitHub Actions
+          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          args: |
+            ✅ **Successfully Deployed:** ${{ github.event.repository.name }}
+            🔹 **Image Tag:** `${{ inputs.custom_tag_name }}`
+            🔹 **Branch:** `${{ github.ref_name }}`
 
-  #     - name: Send Failure Notification to Discord
-  #       if: ${{ needs.docker-build.result != 'success' || needs.deploy.result != 'success' }}
-  #       uses: appleboy/discord-action@master
-  #       with:
-  #         webhook_id: ${{ secrets.discord_webhook_id }}
-  #         webhook_token: ${{ secrets.discord_webhook_token }}
-  #         username: GitHub Actions
-  #         avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
-  #         args: |
-  #           🔴 **Failed Deployment:** ${{ github.event.repository.name }}
-  #           ❌ **Image Tag:** `${{ inputs.custom_tag_name }}`
-  #           ❌ **Branch:** `${{ github.ref_name }}`
-  #           ❌ **URL:** [View Workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+      - name: Send Failure Notification to Discord
+        if: ${{ needs.docker-build.result != 'success' || needs.deploy.result != 'success' }}
+        uses: appleboy/discord-action@master
+        with:
+          webhook_id: ${{ secrets.discord_webhook_id }}
+          webhook_token: ${{ secrets.discord_webhook_token }}
+          username: GitHub Actions
+          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          args: |
+            🔴 **Failed Deployment:** ${{ github.event.repository.name }}
+            ❌ **Image Tag:** `${{ inputs.custom_tag_name }}`
+            ❌ **Branch:** `${{ github.ref_name }}`
+            ❌ **URL:** [View Workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
