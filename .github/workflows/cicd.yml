@@ -6,7 +6,7 @@ on:
       github_actor:
         required: true
         type: string
-        
+
       # Build args
       custom_tag_name:
         required: false
@@ -102,10 +102,10 @@ jobs:
       - name: Decode SSH Key
         shell: bash
         run: |
-          echo "${{ secrets.ssh_private_key }}" | base64 -d > private_key.pem
-          chmod 600 private_key.pem
-          echo "PRIVATE_KEY_PATH=private_key.pem" >> $GITHUB_ENV
-
+          echo "${{ secrets.ssh_private_key }}" | base64 -d > $RUNNER_TEMP/private_key.pem
+          chmod 600 $RUNNER_TEMP/private_key.pem
+          echo "PRIVATE_KEY_PATH=$RUNNER_TEMP/private_key.pem" >> $GITHUB_ENV
+        
       - name: Deploy Application
         uses: appleboy/ssh-action@v1.0.3
         with:
