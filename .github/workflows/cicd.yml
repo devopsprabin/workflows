@@ -68,7 +68,6 @@ on:
 
 jobs:
   docker-build:
-    name: Build and Deploy ${{ github.ref_name }} ${{ github.event.repository.name }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
