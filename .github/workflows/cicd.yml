@@ -101,11 +101,8 @@ jobs:
       - name: Decode SSH Key
         shell: bash
         run: |
-          mkdir -p "$GITHUB_WORKSPACE/.ssh"
-          echo "${{ secrets.ssh_private_key }}" | base64 -d > "$GITHUB_WORKSPACE/.ssh/private_key.pem"
-          chmod 600 "$GITHUB_WORKSPACE/.ssh/private_key.pem"
-          echo "PRIVATE_KEY_PATH=$GITHUB_WORKSPACE/.ssh/private_key.pem" >> $GITHUB_ENV
-        
+          echo "${{ secrets.SSH_PRIVATE_KEY_DEV }}" | base64 -d > private_key.pem
+          echo "PRIVATE_KEY_PATH=private_key.pem" >> $GITHUB_ENV
       - name: Deploy Application
         uses: appleboy/ssh-action@v1.0.3
         with:
