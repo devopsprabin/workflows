@@ -105,7 +105,6 @@ jobs:
           echo "${{ secrets.ssh_private_key }}" | base64 -d > "$GITHUB_WORKSPACE/.ssh/private_key.pem"
           chmod 600 "$GITHUB_WORKSPACE/.ssh/private_key.pem"
           echo "PRIVATE_KEY_PATH=$GITHUB_WORKSPACE/.ssh/private_key.pem" >> $GITHUB_ENV
-          echo "PRIVATE_KEY_PATH=$RUNNER_TEMP/private_key.pem" >> $GITHUB_ENV
         
       - name: Deploy Application
         uses: appleboy/ssh-action@v1.0.3
