@@ -6,7 +6,7 @@ on:
       github_actor:
         required: true
         type: string
-
+        
       # Build args
       custom_tag_name:
         required: false
@@ -68,6 +68,7 @@ on:
 
 jobs:
   docker-build:
+    name: Build and Deploy ${{ github.ref_name }} ${{ github.event.repository.name }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -108,10 +109,10 @@ jobs:
       - name: Deploy Application
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ inputs.ssh_host }}
-          username: ${{ inputs.ssh_user }}
+          host: ${{ secrets.ssh_host }}
+          username: ${{ secrets.ssh_user }}
           key_path: ${{ env.PRIVATE_KEY_PATH }}
-          port: ${{ inputs.ssh_port }}
+          port: ${{ secrets.ssh_port }}
           script: |
             cd ${{ inputs.deploy_folder_path }}
             sh ${{ inputs.deploy_command }}
