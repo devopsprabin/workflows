@@ -101,7 +101,7 @@ jobs:
       - name: Decode SSH Key
         shell: bash
         run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY_DEV }}" | base64 -d > private_key.pem
+          echo "${{ secrets.ssh_private_key }}" | base64 -d > private_key.pem
           echo "PRIVATE_KEY_PATH=private_key.pem" >> $GITHUB_ENV
       - name: Deploy Application
         uses: appleboy/ssh-action@v1.0.3
