@@ -9,8 +9,10 @@ on:
 
       # Build args
       custom_tag_name:
-        required: true
+        required: false
         type: string
+        default: dev
+
       image_name:
         required: false
         type: string
