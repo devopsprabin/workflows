@@ -42,9 +42,11 @@ on:
       discord_enable:
         required: true
         type: string
+        default: true
       ssh_enable:
-        required: true
+        required: false
         type: string
+        default: true
 
     secrets:
       git_token:
