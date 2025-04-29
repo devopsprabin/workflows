@@ -8,10 +8,10 @@ on:
         type: string
 
       # Build args
-      custom_tag_name:
-        required: false
-        type: string
-        default: dev
+      # custom_tag_name:
+      #   required: false
+      #   type: string
+      #   default: dev
 
       image_name:
         required: false
@@ -131,7 +131,6 @@ jobs:
           avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
           args: |
             ✅ **Successfully Deployed:** ${{ github.event.repository.name }}
-            🔹 **Image Tag:** `${{ inputs.custom_tag_name }}`
             🔹 **Branch:** `${{ github.ref_name }}`
 
       - name: Send Failure Notification to Discord
@@ -144,6 +143,5 @@ jobs:
           avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
           args: |
             🔴 **Failed Deployment:** ${{ github.event.repository.name }}
-            ❌ **Image Tag:** `${{ inputs.custom_tag_name }}`
             ❌ **Branch:** `${{ github.ref_name }}`
             ❌ **URL:** [View Workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
