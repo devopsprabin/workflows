@@ -88,7 +88,10 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ inputs.subdirectory != '' && inputs.subdirectory || github.event.repository.name }}:${{ inputs.custom_tag_name }}
+            ghcr.io/${{ github.repository }}:${{ github.ref_type == 'tag' && github.ref_name || inputs.custom_tag_name }}
+            ${{ github.ref_type == 'tag' && 'ghcr.io/' + github.repository + ':latest' || '' }}
             ${{ inputs.image_name }}
+
           build-args: |
             ${{ inputs.build_args }}
             GIT_TOKEN=${{ secrets.git_token }}
