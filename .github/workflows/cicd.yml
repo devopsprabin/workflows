@@ -8,11 +8,9 @@ on:
         type: string
 
       # Build args
-      # custom_tag_name:
-      #   required: false
-      #   type: string
-      #   default: dev
-
+      custom_tag_name:
+        required: false
+        type: string
       image_name:
         required: false
         type: string
@@ -87,7 +85,7 @@ jobs:
           file: ${{ inputs.dockerfile_name }}
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ inputs.subdirectory != '' && inputs.subdirectory || github.event.repository.name }}:${{ github.ref_name }}
+            ghcr.io/${{ github.repository_owner }}/${{ inputs.subdirectory != '' && inputs.subdirectory || github.event.repository.name }}:${{ inputs.custom_tag_name != '' && inputs.custom_tag_name || github.ref_name }}
             ${{ github.ref_type == 'tag' && format('ghcr.io/{0}:latest', github.repository) || '' }}
             ${{ inputs.image_name }}
           build-args: |
