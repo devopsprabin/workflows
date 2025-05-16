@@ -25,8 +25,8 @@ on:
       build_args:
         required: false
         type: string
-        default: |
-          _ENV=development
+        # default: |
+        #   _ENV=development
 
       # Deploy args
       deploy_folder_path:
@@ -89,7 +89,7 @@ jobs:
             ${{ github.ref_type == 'tag' && format('ghcr.io/{0}:latest', github.repository) || '' }}
             ${{ inputs.image_name }}
           build-args: |
-            ${{ inputs.build_args }}
+            ${{ inputs.build_args != '' && inputs.build_args || (github.ref_type == 'tag' && '_ENV=production') || '_ENV=development' }}
             GIT_TOKEN=${{ secrets.git_token }}
 
   deploy:
