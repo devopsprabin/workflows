@@ -125,8 +125,8 @@ jobs:
         with:
           webhook_id: ${{ secrets.discord_webhook_id }}
           webhook_token: ${{ secrets.discord_webhook_token }}
-          username: GitHub Actions
-          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          username: ${{ github.event.sender.login }}
+          avatar_url: ${{ github.event.sender.avatar_url }}
           args: |
             ✅ **Successfully Deployed:** ${{ github.event.repository.name }}
             🔹 **Branch:** `${{ github.ref_name }}`
@@ -137,8 +137,8 @@ jobs:
         with:
           webhook_id: ${{ secrets.discord_webhook_id }}
           webhook_token: ${{ secrets.discord_webhook_token }}
-          username: GitHub Actions
-          avatar_url: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          username: ${{ github.event.sender.login }}
+          avatar_url: ${{ github.event.sender.avatar_url }}
           args: |
             🔴 **Failed Deployment:** ${{ github.event.repository.name }}
             ❌ **Branch:** `${{ github.ref_name }}`
