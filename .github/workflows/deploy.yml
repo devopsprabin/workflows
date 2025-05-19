@@ -111,10 +111,10 @@ jobs:
           key_path: ${{ env.PRIVATE_KEY_PATH }}
           port: ${{ secrets.ssh_port }}
           script: |
-            ls -lah
+            repo_name=$(echo "${{ github.event.repository.name }}" | tr -d '_-')
             cd ${{ inputs.deploy_folder_path }}
-            sh ${{ inputs.deploy_command }}
-
+            sh ${{ inputs.deploy_command }} $repo_name
+            
   notify:
     needs: [docker-build, deploy]
     runs-on: ubuntu-latest
