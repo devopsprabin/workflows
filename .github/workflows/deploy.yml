@@ -87,6 +87,7 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ inputs.subdirectory != '' && inputs.subdirectory || github.event.repository.name }}:${{ inputs.custom_tag_name != '' && inputs.custom_tag_name || github.ref_name }}
             ${{ github.ref_type == 'tag' && format('ghcr.io/{0}:latest', github.repository) || '' }}
+            ${{ github.ref_name == 'main' && format('ghcr.io/{0}:main', github.repository) || github.ref_name == 'dev' && format('ghcr.io/{0}:dev', github.repository) || github.ref_name == 'demo' && format('ghcr.io/{0}:demo', github.repository) || '' }}
             ${{ inputs.image_name }}
           build-args: |
             ${{ inputs.build_args != '' && inputs.build_args || (github.ref_type == 'tag' && '_ENV=production') || '_ENV=development' }}
