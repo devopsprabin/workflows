@@ -90,7 +90,8 @@ jobs:
             ${{ github.ref_name == 'main' && format('ghcr.io/{0}:main', github.repository) || github.ref_name == 'dev' && format('ghcr.io/{0}:dev', github.repository) || github.ref_name == 'demo' && format('ghcr.io/{0}:demo', github.repository) || '' }}
             ${{ inputs.image_name }}
           build-args: |
-            ${{ inputs.build_args != '' && inputs.build_args || (github.ref_type == 'tag' && '_ENV=production') || '_ENV=development' }}
+            # ${{ inputs.build_args != '' && inputs.build_args || (github.ref_type == 'tag' && '_ENV=production') || '_ENV=development' }}
+            ${{ inputs.build_args != '' && inputs.build_args || github.ref_type == 'tag' && '_ENV=production' || github.ref_name == 'main' && '_ENV=production' || github.ref_name == 'demo' && '_ENV=demo' || github.ref_name == 'dev' && '_ENV=development' || '_ENV=development' }}
             GIT_TOKEN=${{ secrets.git_token }}
 
   deploy:
