@@ -132,6 +132,7 @@ jobs:
           args: |
             ✅ **Successfully Deployed:** ${{ github.event.repository.name }}
             🔹 **Branch:** `${{ github.ref_name }}`
+            **Commit:** `${{ github.event.head_commit.message }}`
 
       - name: Send Failure Notification to Discord
         if: ${{ needs.docker-build.result != 'success' || needs.deploy.result != 'success' }}
@@ -144,4 +145,5 @@ jobs:
           args: |
             🔴 **Failed Deployment:** ${{ github.event.repository.name }}
             ❌ **Branch:** `${{ github.ref_name }}`
+               **Commit:** `${{ github.event.head_commit.message }}`
             ❌ **URL:** [View Workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
