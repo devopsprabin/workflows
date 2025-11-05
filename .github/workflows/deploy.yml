@@ -45,6 +45,10 @@ on:
         required: false
         type: string
         default: true
+      double_ssh_enable:
+        required: false
+        type: string
+        default: false
 
     secrets:
       git_token:
@@ -62,6 +66,12 @@ on:
       ssh_user:
         required: true
       ssh_port:
+        required: true
+      ssh_host2:
+        required: true
+      ssh_user2:
+        required: true
+      ssh_port2:
         required: true
 
 jobs:
@@ -106,6 +116,7 @@ jobs:
           echo "${{ secrets.ssh_private_key }}" | base64 -d > private_key.pem
           echo "PRIVATE_KEY_PATH=private_key.pem" >> $GITHUB_ENV
       - name: Deploy Application
+        if: ${{ inputs.double_ssh_enable != 'true' }}
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.ssh_host }}
@@ -116,6 +127,18 @@ jobs:
             repo_name=$(echo "${{ github.event.repository.name }}" | tr -d '_-')
             cd ${{ inputs.deploy_folder_path }}
             sh ${{ inputs.deploy_command }} $repo_name
+      - name: Double SSH Deploy
+        if: ${{ inputs.double_ssh_enable == 'true' }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.ssh_host }}
+          username: ${{ secrets.ssh_user }}
+          key_path: ${{ env.PRIVATE_KEY_PATH }}
+          port: ${{ secrets.ssh_port }}
+          script: |
+            repo_name=$(echo "${{ github.event.repository.name }}" | tr -d '_-')
+            ssh -t -p ${{ secrets.ssh_port2 }} ${{ secrets.ssh_user2 }}@${{ secrets.ssh_host2 }} \
+              "whoami && cd ${{ vars.DEPLOY_FOLDER_PATH_DEV }} && sh ${{ vars.DEPLOY_COMMAND }} $repo_name"
             
   notify:
     needs: [docker-build, deploy]
