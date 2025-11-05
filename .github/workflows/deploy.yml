@@ -138,7 +138,7 @@ jobs:
           script: |
             repo_name=$(echo "${{ github.event.repository.name }}" | tr -d '_-')
             ssh -o StrictHostKeyChecking=no -p ${{ secrets.ssh_port2 }} ${{ secrets.ssh_user2 }}@${{ secrets.ssh_host2 }} \
-              "whoami && cd ${{ vars.DEPLOY_FOLDER_PATH_DEV }} && sh ${{ vars.DEPLOY_COMMAND }} $repo_name"
+              "whoami && cd ${{ inputs.deploy_folder_path }} && sh ${{ inputs.deploy_command }} $repo_name"
 
             
   notify:
