@@ -137,7 +137,7 @@ jobs:
           port: ${{ secrets.ssh_port }}
           script: |
             repo_name=$(echo "${{ github.event.repository.name }}" | tr -d '_-')
-            ssh -t ${{ secrets.ssh_user2 }}@${{ secrets.ssh_host2 }} "whoami"
+            ssh -o StrictHostKeyChecking=no ${{ secrets.ssh_user2 }}@${{ secrets.ssh_host2 }} "whoami"
 
             
   notify:
