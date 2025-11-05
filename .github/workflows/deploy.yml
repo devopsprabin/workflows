@@ -68,11 +68,11 @@ on:
       ssh_port:
         required: true
       ssh_host2:
-        required: true
+        required: false
       ssh_user2:
-        required: true
+        required: false
       ssh_port2:
-        required: true
+        required: false
 
 jobs:
   docker-build:
