@@ -195,11 +195,10 @@ jobs:
           status: success
           actor_name: ${{ github.event.sender.login }}
           actor_avatar_url: ${{ github.event.sender.avatar_url }}
-          title: "Successfully Deployed: ${{ github.event.repository.name }}"
+          title: "${{ github.event.repository.name }} Successfully Deployed"
           description: |
             🔹 Branch: ${{ github.ref_name }}
             Commit: ${{ github.event.head_commit.message }}
-            SHA: {{truncate commit.sha 7}}
 
       # Build broke: the code or Dockerfile needs a fix, nothing was deployed.
       - name: Send Docker Build Failure Notification to Stela
@@ -211,7 +210,7 @@ jobs:
           status: failure
           actor_name: ${{ github.event.sender.login }}
           actor_avatar_url: ${{ github.event.sender.avatar_url }}
-          title: "Docker Build Failed: ${{ github.event.repository.name }}"
+          title: "${{ github.event.repository.name }} Docker Build Failed"
           description: |
             ❌ Branch: ${{ github.ref_name }}
             Commit: ${{ github.event.head_commit.message }}
@@ -229,7 +228,7 @@ jobs:
           status: failure
           actor_name: ${{ github.event.sender.login }}
           actor_avatar_url: ${{ github.event.sender.avatar_url }}
-          title: "Deployment Failed: ${{ github.event.repository.name }}"
+          title: "${{ github.event.repository.name }} Deployment Failed"
           description: |
             ❌ Branch: ${{ github.ref_name }}
             Commit: ${{ github.event.head_commit.message }}
