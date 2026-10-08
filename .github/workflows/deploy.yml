@@ -145,7 +145,7 @@ jobs:
           port: ${{ secrets.ssh_port }}
           script: |
             repo_name=$(echo "${{ github.event.repository.name }}" | tr -d '_-')
-            ssh -o StrictHostKeyChecking=no ConnectTimeout=10 -p ${{ secrets.ssh_port2 }} ${{ secrets.ssh_user2 }}@${{ secrets.ssh_host2 }} \
+            ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 -p ${{ secrets.ssh_port2 }} ${{ secrets.ssh_user2 }}@${{ secrets.ssh_host2 }} \
               "whoami && cd ${{ inputs.deploy_folder_path }} && sh ${{ inputs.deploy_command }} $repo_name"
 
             
