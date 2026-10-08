@@ -41,6 +41,10 @@ on:
         required: false
         type: string
         default: true
+      stela_enable:
+        required: false
+        type: string
+        default: "false"
       ssh_enable:
         required: false
         type: string
@@ -59,6 +63,10 @@ on:
         required: true
       discord_webhook_token:
         required: true
+      stela_webhook_id:
+        required: false
+      stela_webhook_token:
+        required: false
       # Deploy args
 
       ssh_host:
@@ -141,7 +149,7 @@ jobs:
               "whoami && cd ${{ inputs.deploy_folder_path }} && sh ${{ inputs.deploy_command }} $repo_name"
 
             
-  notify:
+  notify-discord:
     needs: [docker-build, deploy]
     runs-on: ubuntu-latest
     if: always()  # 💡 Always run notify, regardless of previous jobs' result
@@ -172,3 +180,59 @@ jobs:
             ❌ **Branch:** `${{ github.ref_name }}`
                **Commit:** `${{ github.event.head_commit.message }}`
             ❌ **URL:** [View Workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+  notify-stela:
+    needs: [docker-build, deploy]
+    runs-on: ubuntu-latest
+    if: ${{ always() && inputs.stela_enable == 'true' }}  # 💡 Always run notify, regardless of previous jobs' result
+    steps:
+      - name: Send Success Notification to Stela
+        if: ${{ needs.docker-build.result == 'success' && (needs.deploy.result == 'success' || needs.deploy.result == 'skipped') }}
+        uses: devopsprabin/stela-action@v1
+        with:
+          webhook_id: ${{ secrets.stela_webhook_id }}
+          webhook_token: ${{ secrets.stela_webhook_token }}
+          status: success
+          actor_name: ${{ github.event.sender.login }}
+          actor_avatar_url: ${{ github.event.sender.avatar_url }}
+          title: "Successfully Deployed: ${{ github.event.repository.name }}"
+          description: |
+            🔹 Branch: ${{ github.ref_name }}
+            Commit: ${{ github.event.head_commit.message }}
+            SHA: {{truncate commit.sha 7}}
+
+      # Build broke: the code or Dockerfile needs a fix, nothing was deployed.
+      - name: Send Docker Build Failure Notification to Stela
+        if: ${{ needs.docker-build.result != 'success' }}
+        uses: devopsprabin/stela-action@v1
+        with:
+          webhook_id: ${{ secrets.stela_webhook_id }}
+          webhook_token: ${{ secrets.stela_webhook_token }}
+          status: failure
+          actor_name: ${{ github.event.sender.login }}
+          actor_avatar_url: ${{ github.event.sender.avatar_url }}
+          title: "Docker Build Failed: ${{ github.event.repository.name }}"
+          description: |
+            ❌ Branch: ${{ github.ref_name }}
+            Commit: ${{ github.event.head_commit.message }}
+            @${{ github.event.sender.login }}, the Docker image failed to build, so nothing was deployed.
+            Please open the workflow logs, fix the build error in your code or Dockerfile, and push again.
+          source_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      # Build passed but deploy broke: the server may need a manual deploy.
+      - name: Send Deploy Failure Notification to Stela
+        if: ${{ needs.docker-build.result == 'success' && (needs.deploy.result == 'failure' || needs.deploy.result == 'cancelled') }}
+        uses: devopsprabin/stela-action@v1
+        with:
+          webhook_id: ${{ secrets.stela_webhook_id }}
+          webhook_token: ${{ secrets.stela_webhook_token }}
+          status: failure
+          actor_name: ${{ github.event.sender.login }}
+          actor_avatar_url: ${{ github.event.sender.avatar_url }}
+          title: "Deployment Failed: ${{ github.event.repository.name }}"
+          description: |
+            ❌ Branch: ${{ github.ref_name }}
+            Commit: ${{ github.event.head_commit.message }}
+            @${{ github.event.sender.login }}, the Docker image built successfully but the deployment failed.
+            Please deploy it manually yourself, or ask a senior developer for help if you don't have server access.
+          source_url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
